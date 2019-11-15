@@ -1,1 +1,1 @@
-# deckern-cli
+# decker-cli
