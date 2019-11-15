@@ -1,4 +1,4 @@
-# decker-cli
+# decker
 
 ## Resources used
 
