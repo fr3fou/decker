@@ -46,6 +46,7 @@ func (d *Decker) Check() ([]string, error) {
 	}
 
 	m := map[string][]byte{}
+	imgs := []string{}
 	iter := d.DB.NewIterator(nil, nil)
 
 	for iter.Next() {
@@ -61,5 +62,31 @@ func (d *Decker) Check() ([]string, error) {
 	err := iter.Error()
 	if err != nil {
 		return []string{}, err
+	}
+
+	// Compare every hash with every hash *other* than it
+	for k1, v1 := range m {
+		for k2, v2 := range m {
+			// if we have the exact same path, carry on
+			if k2 == k1 {
+				continue
+			}
+
+			i1 := binary.LittleEndian.Uint64(v1)
+			i2 := binary.LittleEndian.Uint64(v2)
+
+			h1 := goimagehash.NewImageHash(i1, goimagehash.PHash)
+			h2 := goimagehash.NewImageHash(i2, goimagehash.PHash)
+
+			distance, err := h1.Distance(h2)
+			if err != nil {
+				log.Println(errors.Wrap(err, fmt.Sprintf("decker: couldn't get the distance between %s and %s", k1, k2)))
+			}
+
+			if distance <= d.Threshold {
+				// TOOD: append unique
+				imgs = append(imgs, k1)
+			}
+		}
 	}
 }

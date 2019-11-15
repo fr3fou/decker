@@ -11,6 +11,7 @@
 ## TODO
 
 - [] Implement sequential first, then concurrent
+  - [] Think of data structure that can hold the best quality image and the respective duplicates as children
 - [] Tests
 - [] CLI
 - [] GUI in [zserge/lorca](https://github.com/zserge/lorca)
