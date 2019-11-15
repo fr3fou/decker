@@ -45,6 +45,7 @@ func (d *Decker) Check() ([]string, error) {
 		panic("decker: leveldb.DB instance not provided")
 	}
 
+	// map of path -> hash
 	m := map[string][]byte{}
 	imgs := []string{}
 	iter := d.DB.NewIterator(nil, nil)
@@ -72,19 +73,22 @@ func (d *Decker) Check() ([]string, error) {
 				continue
 			}
 
+			// convert the []byte to uint64
 			i1 := binary.LittleEndian.Uint64(v1)
 			i2 := binary.LittleEndian.Uint64(v2)
 
+			// get back the hashes
 			h1 := goimagehash.NewImageHash(i1, goimagehash.PHash)
 			h2 := goimagehash.NewImageHash(i2, goimagehash.PHash)
 
+			// calculate the hamming distance
 			distance, err := h1.Distance(h2)
 			if err != nil {
 				log.Println(errors.Wrap(err, fmt.Sprintf("decker: couldn't get the distance between %s and %s", k1, k2)))
 			}
 
 			if distance <= d.Threshold {
-				// TOOD: append unique
+				// TOOD: append unique?
 				imgs = append(imgs, k1)
 			}
 		}
