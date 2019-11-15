@@ -93,4 +93,6 @@ func (d *Decker) Check() ([]string, error) {
 			}
 		}
 	}
+
+	return imgs, nil
 }
