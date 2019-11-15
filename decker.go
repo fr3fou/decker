@@ -26,7 +26,6 @@ func (d *Decker) Hash() {
 
 	for path, img := range d.Images {
 		hash, err := goimagehash.PerceptionHash(img)
-
 		if err != nil {
 			log.Println(errors.Wrap(err, fmt.Sprintf("image %s couldn't be hashed", img)))
 		}
@@ -37,5 +36,30 @@ func (d *Decker) Hash() {
 
 		// Put into the DB
 		d.DB.Put([]byte(path), b, nil)
+	}
+}
+
+// Check checks all the images in the DB and returns the path for all duplicates
+func (d *Decker) Check() ([]string, error) {
+	if d.DB == nil {
+		panic("decker: leveldb.DB instance not provided")
+	}
+
+	m := map[string][]byte{}
+	iter := d.DB.NewIterator(nil, nil)
+
+	for iter.Next() {
+		// Get the key and val
+		key := iter.Key()
+		value := iter.Value()
+
+		// Set the path and hash
+		m[string(key)] = value
+	}
+
+	iter.Release()
+	err := iter.Error()
+	if err != nil {
+		return []string{}, err
 	}
 }
