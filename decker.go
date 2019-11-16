@@ -1,30 +1,43 @@
 package decker
 
+import (
+	"fmt"
+	"image"
+	"log"
+
+	"github.com/corona10/goimagehash"
+	"github.com/pkg/errors"
+)
+
 // Decker is the main struct of the app
 type Decker struct {
-	Images    []Tree
+	// TOOD: replace with channel?
+	// somehow make concurrent
+	output    []Tree
+	Input     map[string]image.Image
 	Threshold int
 }
 
 // Hash takes the perception hash of every image in the array and makes a database
 func (d *Decker) Hash() {
-	// for path, img := range d.Images {
-	// 	hash, err := goimagehash.PerceptionHash(img)
-	// 	if err != nil {
-	// 		log.Println(
-	// 			errors.Wrap(err,
-	// 				fmt.Sprintf("image %s couldn't be hashed", img),
-	// 			),
-	// 		)
-	// 	}
+	for _, img := range d.Input {
+		_, err := goimagehash.PerceptionHash(img)
 
-	// 	// Make the hash into a byte array
-	// 	b := make([]byte, 8)
-	// 	binary.LittleEndian.PutUint64(b, hash.GetHash())
+		if err != nil {
+			log.Println(
+				errors.Wrap(err,
+					fmt.Sprintf("image %s couldn't be hashed", img),
+				),
+			)
+		}
 
-	// 	// Put into the DB
-	// 	// d.DB.Put([]byte(path), b, nil)
-	// }
+		// 	// Make the hash into a byte array
+		// 	b := make([]byte, 8)
+		// 	binary.LittleEndian.PutUint64(b, hash.GetHash())
+
+		// 	// Put into the DB
+		// 	// d.DB.Put([]byte(path), b, nil)
+	}
 }
 
 // Check checks all the images in the DB and returns the path for all duplicates
@@ -75,5 +88,5 @@ func (d *Decker) Check() ([]Tree, error) {
 	// 	}
 	// }
 
-	// return imgs, nil
+	return []Tree{}, nil
 }
