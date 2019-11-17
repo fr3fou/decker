@@ -46,7 +46,7 @@ A data structure will have to be created that has the following properties:
 map[uint64]decker.Image
 
 0xaf0912jf -> decker.Image{
-    Hash:0xaf0912jf,
+    Hash: 0xaf0912jf,
     IsBest: true,
     Siblings: []decker.Image{
         decker.Image{
@@ -62,7 +62,7 @@ map[uint64]decker.Image
 map[uint64]decker.Image
 
 0xaf0912jf -> decker.Image{
-    Hash:0xaf0912jf,
+    Hash: 0xaf0912jf,
     IsBest: true,
     ID: 1,
 }
@@ -72,12 +72,12 @@ map[uint64][]decker.Image
 
 1 -> []decker.Image{
         decker.Image{
-            Hash:0xaf0912jf,
+            Hash: 0xaf0912jf,
             IsBest: true,
             ID: 1,
         },
         decker.Image{
-            Hash:0x98adf32,
+            Hash: 0x98adf32,
             IsBest: false,
             ID: 2,
         },
