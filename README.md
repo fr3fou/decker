@@ -28,19 +28,6 @@ A data structure will have to be created that has the following properties:
   - the duplicate images
 - needs to have an array of it
 
-  ```go
-  type Something struct {
-      SomeField      string
-      // ... etc
-  }
-
-  type ArrayOfSomething = []Something
-  ```
-
-- needs to be able to be looked up by anything - hash or path
-
-~~should i just use sqlite at this point~~
-
 How about this?
 The idea is that in the first array, we are going to hold
 ALL of `decker.Image` - wrapping the normal `image.Image`, while adding
