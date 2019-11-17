@@ -13,10 +13,13 @@ import (
 type Decker struct {
 	// TOOD: replace with channel?
 	// somehow make concurrent
-	// Output is a map of Hash -> decker.Image
-	Output map[uint64]Image
+	// Output is a map of Hash -> []decker.Image
+	Output map[uint64][]Image
 	// Input is a map of Path -> image.Image
 	Input map[string]image.Image
+	// hashes is map that is used for
+	// internal use cases (it holds the hash and ONE image)
+	hashes map[uint64]Image
 	// Threshold is the minimum hamming distance
 	// for 2 images to be considered "different"
 	Threshold int
