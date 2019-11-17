@@ -40,6 +40,7 @@ A data structure will have to be created that has the following properties:
 ~~should i just use sqlite at this point~~
 
 ```go
+// Hash -> Image
 map[uint64]decker.Image
 
 0xaf0912jf -> decker.Image{
@@ -51,5 +52,33 @@ map[uint64]decker.Image
             Siblings: &parent.Siblings // self reference!!
         },
     }
+}
+```
+
+```go
+// Hash -> Image
+map[uint64]decker.Image
+
+0xaf0912jf -> decker.Image{
+    Hash:0xaf0912jf,
+    IsBest: true,
+    ID: 1,
+}
+
+// ID -> siblings array 
+map[uint64][]decker.Image
+
+1 -> []decker.Image{
+        decker.Image{
+            Hash:0xaf0912jf,
+            IsBest: true,
+            ID: 1,
+        },
+        decker.Image{
+            Hash:0x98adf32,
+            IsBest: false,
+            ID: 2,
+        },
+        // ... etc
 }
 ```
