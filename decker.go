@@ -40,8 +40,6 @@ func (d *Decker) Hash() {
 			)
 		}
 
-		key := hash.GetHash()
-
 		// Add the hash
 		d.hashes = append(d.hashes, &Image{
 			img,
