@@ -9,20 +9,19 @@ import (
 	"github.com/pkg/errors"
 )
 
+// Output is a map of a randomly generated ID and decker.Image
+// ID -> []decker.Image
 type Output map[uint64][]*Image
 
 // Decker is the main struct of the app
 type Decker struct {
 	// TOOD: replace with channel?
 	// somehow make concurrent
-	// Output is a map of a randomly generated ID
-	// ID -> []decker.Image
 	// Input is a map of Path -> image.Image
 	Input map[string]image.Image
-	// hashes is map that is used for
-	// internal use cases (it holds the hash and ONE image)
-	// Hash -> Image
-	hashes map[uint64]*Image
+	// hashes is an array for
+	// internal use cases
+	hashes []*Image
 	// Threshold is the minimum hamming distance
 	// for 2 images to be considered "different"
 	Threshold int
@@ -44,13 +43,13 @@ func (d *Decker) Hash() {
 		key := hash.GetHash()
 
 		// Add the hash
-		d.hashes[key] = &Image{
+		d.hashes = append(d.hashes, &Image{
 			img,
 			path,
 			0,
 			hash,
 			false,
-		}
+		})
 	}
 }
 
@@ -58,10 +57,12 @@ func (d *Decker) Hash() {
 func (d *Decker) Check() (Output, error) {
 	output := Output{}
 
-	for hash1, img1 := range d.hashes {
-		for hash2, img2 := range d.hashes {
-			// Ignore if we have the exact same image or if we have found
-			if hash1 == hash2 && img1.Path == img2.Path {
+	id := 1
+
+	for _, img1 := range d.hashes {
+		for _, img2 := range d.hashes {
+			// Ignore if we have the exact same image
+			if img1.Path == img2.Path {
 				continue
 			}
 
@@ -77,6 +78,15 @@ func (d *Decker) Check() (Output, error) {
 			}
 
 			if distance <= d.Threshold {
+				// handle IDs
+				// if both are 0
+				// inc
+				// if one has value, set the other to that
+				if img1.ID == 0 {
+					img1.ID = img2.ID
+					// // TODO: replace with random UUID / ID
+					// id += 1
+				}
 			}
 		}
 	}
