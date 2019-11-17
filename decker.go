@@ -13,15 +13,19 @@ import (
 type Decker struct {
 	// TOOD: replace with channel?
 	// somehow make concurrent
-	output    []Tree
-	Input     map[string]image.Image
+	// Output is a map of Hash -> decker.Image
+	Output map[uint64]Image
+	// Input is a map of Path -> image.Image
+	Input map[string]image.Image
+	// Threshold is the minimum hamming distance
+	// for 2 images to be considered "different"
 	Threshold int
 }
 
 // Hash takes the perception hash of every image in the array and makes a database
 func (d *Decker) Hash() {
-	for _, img := range d.Input {
-		_, err := goimagehash.PerceptionHash(img)
+	for path, img := range d.Input {
+		hash, err := goimagehash.PerceptionHash(img)
 
 		if err != nil {
 			log.Println(
@@ -30,13 +34,6 @@ func (d *Decker) Hash() {
 				),
 			)
 		}
-
-		// 	// Make the hash into a byte array
-		// 	b := make([]byte, 8)
-		// 	binary.LittleEndian.PutUint64(b, hash.GetHash())
-
-		// 	// Put into the DB
-		// 	// d.DB.Put([]byte(path), b, nil)
 	}
 }
 
