@@ -11,6 +11,7 @@ import (
 type Image struct {
 	image.Image
 	Path   string
+	ID     uint64
 	Hash   *goimagehash.ImageHash
 	IsBest bool
 }
