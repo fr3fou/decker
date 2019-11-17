@@ -50,6 +50,9 @@ ALL of `decker.Image` - wrapping the normal `image.Image`, while adding
 - the ID (originally set to -1)
 - IsBest field
 
+After the map has been created, we can lazily go over each entry and find the correct `IsBest` image.
+We'll use the resolution of the images to accomplish this.
+
 ```go
 []decker.Image{
     decker.Image{
