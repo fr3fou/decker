@@ -38,3 +38,18 @@ A data structure will have to be created that has the following properties:
 - needs to be able to be looked up by anything - hash or path
 
 ~~should i just use sqlite at this point~~
+
+```go
+map[uint64]decker.Image
+
+0xaf0912jf -> decker.Image{
+    Hash:0xaf0912jf,
+    IsBest: true,
+    Siblings: []decker.Image{
+        decker.Image{
+            // ... 
+            Siblings: &parent.Siblings // self reference!!
+        },
+    }
+}
+```
