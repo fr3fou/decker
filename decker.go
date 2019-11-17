@@ -9,7 +9,7 @@ import (
 	"github.com/pkg/errors"
 )
 
-// Output is a map of a randomly generated ID and decker.Image
+// Output is a map of a generated ID and decker.Image
 // ID -> []decker.Image
 type Output map[uint64][]*Image
 
@@ -42,11 +42,11 @@ func (d *Decker) Hash() {
 
 		// Add the hash
 		d.hashes = append(d.hashes, &Image{
-			img,
-			path,
-			0,
-			hash,
-			false,
+			Image:  img,
+			Path:   path,
+			ID:     0,
+			Hash:   hash,
+			IsBest: false,
 		})
 	}
 }
@@ -77,8 +77,10 @@ func (d *Decker) Check() (Output, error) {
 				continue
 			}
 
+			// Get the actual hashes
 			h1, h2 := img1.Hash, img2.Hash
 
+			// Calculate the hamming distance
 			distance, err := h1.Distance(h2)
 			if err != nil {
 				log.Println(
@@ -86,9 +88,11 @@ func (d *Decker) Check() (Output, error) {
 						fmt.Sprintf("decker: couldn't get the distance between %s and %s", img1.Path, img2.Path),
 					),
 				)
+				continue
 			}
 
 			if distance <= d.Threshold {
+				// If the images are duplicates
 				img2.ID = img1.ID
 
 				// Init the array
@@ -96,6 +100,7 @@ func (d *Decker) Check() (Output, error) {
 					output[id] = []*Image{}
 				}
 
+				// Add the current image
 				output[id] = append(output[id], img2)
 			}
 		}
