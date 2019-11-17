@@ -11,7 +11,7 @@
 ## TODO
 
 - [ ] Implement sequential first, then concurrent
-  - [ x ] Think of data structure that can hold the best quality image and the respective duplicates as children
+  - [x] Think of data structure that can hold the best quality image and the respective duplicates as children
 - [ ] Tests
 - [ ] CLI
 - [ ] GUI in [zserge/lorca](https://github.com/zserge/lorca)
@@ -41,46 +41,64 @@ A data structure will have to be created that has the following properties:
 
 ~~should i just use sqlite at this point~~
 
-```go
-// Hash -> Image
-map[uint64]decker.Image
+How about this?
+The idea is that in the first array, we are going to hold
+ALL of `decker.Image` - wrapping the normal `image.Image`, while adding
 
-0xaf0912jf -> decker.Image{
-    Hash: 0xaf0912jf,
-    IsBest: true,
-    Siblings: []decker.Image{
-        decker.Image{
-            // ...
-            Siblings: &parent.Siblings // self reference!!
-        },
-    }
-}
-```
+- the path
+- the hash
+- the ID (originally set to -1)
+- IsBest field
 
 ```go
-// Hash -> Image
-map[uint64]decker.Image
-
-0xaf0912jf -> decker.Image{
-    Hash: 0xaf0912jf,
-    IsBest: true,
-    ID: 1,
+[]decker.Image{
+    decker.Image{
+        Hash: 0xaf0912bf, // the hash isn't directly stored like this, it's stored in the goimagehash struct, which has a field `.hash`
+        Path: "~/Pictures/Wallpapers/Foo",
+        IsBest: true,
+        ID: 1,
+    },
+    decker.Image{
+        Hash: 0x98adf32,
+        Path: "~/Pictures/Wallpapers/Foo1",
+        IsBest: false,
+        ID: 1,
+    },
+    decker.Image{
+        Hash: 0x1003001,
+        Path: "~/Pictures/Wallpapers/Wow",
+        IsBest: false,
+        ID: 2,
+    },
 }
+
+
+// 0x98adf32 and 0xaf0912jf are duplicates of one another, they also have the same ID
+// hence why they are added on the `1` key of the map
 
 // ID -> siblings array
 map[uint64][]decker.Image
 
 1 -> []decker.Image{
         decker.Image{
-            Hash: 0xaf0912jf,
+            Hash: 0xaf0912bf,
             IsBest: true,
             ID: 1,
         },
         decker.Image{
             Hash: 0x98adf32,
             IsBest: false,
+            ID: 1,
+        },
+        // ... any other duplicates of `1`
+}
+2 -> []decker.Image{
+        decker.Image{
+            Hash: 0x1003001,
+            IsBest: true,
             ID: 2,
         },
-        // ... etc
+        // ... any duplicates of `2`
+        // if there aren't any, this entry gets deleted
 }
 ```
