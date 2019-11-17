@@ -11,7 +11,7 @@ import (
 
 // Output is a map of a generated ID and decker.Image
 // ID -> []decker.Image
-type Output map[uint64][]*Image
+type Output map[uint64][]Image
 
 // Decker is the main struct of the app
 type Decker struct {
@@ -21,7 +21,7 @@ type Decker struct {
 	Input map[string]image.Image
 	// hashes is an array for
 	// internal use cases
-	hashes []*Image
+	hashes []Image
 	// Threshold is the minimum hamming distance
 	// for 2 images to be considered "different"
 	Threshold int
@@ -41,7 +41,7 @@ func (d *Decker) Hash() {
 		}
 
 		// Add the hash
-		d.hashes = append(d.hashes, &Image{
+		d.hashes = append(d.hashes, Image{
 			Image:  img,
 			Path:   path,
 			ID:     0,
@@ -70,6 +70,12 @@ func (d *Decker) Check() (Output, error) {
 		id++
 		img1.ID = id
 
+		// Add the image first
+		// Can this be optimized?
+		// img1 might not have any duplicates so we are wasting space
+		output[img1.ID] = []Image{}
+		output[img1.ID] = append(output[img1.ID], img1)
+
 		// Compare to the rest of the images
 		for _, img2 := range d.hashes {
 			// Ignore if we have the exact same image
@@ -85,7 +91,7 @@ func (d *Decker) Check() (Output, error) {
 			if err != nil {
 				log.Println(
 					errors.Wrap(err,
-						fmt.Sprintf("decker: couldn't get the distance between %s and %s", img1.Path, img2.Path),
+						fmt.Sprintf("decker: couldn't calculate the distance between %s and %s", img1.Path, img2.Path),
 					),
 				)
 				continue
@@ -95,14 +101,15 @@ func (d *Decker) Check() (Output, error) {
 				// If the images are duplicates
 				img2.ID = img1.ID
 
-				// Init the array
-				if _, ok := output[id]; !ok {
-					output[id] = []*Image{}
-				}
-
 				// Add the current image
-				output[id] = append(output[id], img2)
+				output[img1.ID] = append(output[img1.ID], img2)
 			}
+		}
+
+		// If we have no duplicates
+		if len(output[img1.ID]) == 1 {
+			// TODO:
+			// delete map entry (HOW)
 		}
 	}
 
