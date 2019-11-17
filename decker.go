@@ -58,6 +58,7 @@ func (d *Decker) Check() (Output, error) {
 	// when making concurrent, use a mutex or a random UUID?
 	var id uint64 = 0
 
+	// Compare each image with eachother
 	for _, img1 := range d.hashes {
 		// if it's an image that we have seen before
 		// (already exists in our map)
@@ -108,8 +109,8 @@ func (d *Decker) Check() (Output, error) {
 
 		// If we have no duplicates
 		if len(output[img1.ID]) == 1 {
-			// TODO:
-			// delete map entry (HOW)
+			// Delete the entry
+			delete(output, img1.ID)
 		}
 	}
 
