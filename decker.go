@@ -46,7 +46,7 @@ func (d *Decker) Hash() {
 		d.hashes = append(d.hashes, &Image{
 			img,
 			path,
-			-1,
+			0,
 			hash,
 			false,
 		})
@@ -58,15 +58,21 @@ func (d *Decker) Check() (Output, error) {
 	output := Output{}
 
 	// when making concurrent, use a mutex or a random UUID?
-	id := 0
+	var id uint64 = 0
 
 	for _, img1 := range d.hashes {
-		// set the ID if it's an image that we have not seen before
-		if img1.ID == -1 {
-			id++
-			img1.ID = id
+		// if it's an image that we have seen before
+		// (already exists in our map)
+		// we should just carry on
+		if _, ok := output[img1.ID]; ok {
+			continue
 		}
 
+		// Update the ID if it's a new image
+		id++
+		img1.ID = id
+
+		// Compare to the rest of the images
 		for _, img2 := range d.hashes {
 			// Ignore if we have the exact same image
 			if img1.Path == img2.Path {
@@ -87,11 +93,12 @@ func (d *Decker) Check() (Output, error) {
 			if distance <= d.Threshold {
 				img2.ID = img1.ID
 
-				if key, ok := output[id]; !ok {
+				// Init the array
+				if _, ok := output[id]; !ok {
 					output[id] = []*Image{}
 				}
 
-				output[id] = append(output, img2)
+				output[id] = append(output[id], img2)
 			}
 		}
 	}
