@@ -41,29 +41,31 @@ After the map has been created, we can lazily go over each entry and find the co
 We'll use the resolution of the images to accomplish this.
 
 ```go
+// first step is to generate an array of all images but adding their hash and path as well
 []decker.Image{
     decker.Image{
         Hash: 0xaf0912bf, // the hash isn't directly stored like this, it's stored in the goimagehash struct, which has a field `.hash`
         Path: "~/Pictures/Wallpapers/Foo",
         IsBest: true,
-        ID: 1,
+        ID: -1,
     },
     decker.Image{
         Hash: 0x98adf2bf,
         Path: "~/Pictures/Wallpapers/Foo1",
         IsBest: false,
-        ID: 1,
+        ID: -1,
     },
     decker.Image{
         Hash: 0x1003001,
         Path: "~/Pictures/Wallpapers/Wow",
         IsBest: false,
-        ID: 2,
+        ID: -1,
     },
 }
 
+// second step is to create a map of all duplicate images combined into an array
 
-// 0x98adf32 and 0xaf0912jf are duplicates of one another, they also have the same ID
+// 0xaf0912bf and 0x98adf2bf are duplicates of one another, they also have the same ID
 // hence why they are added on the `1` key of the map
 
 // ID -> siblings array
@@ -72,11 +74,11 @@ map[uint64][]decker.Image
 1 -> []decker.Image{
         decker.Image{
             Hash: 0xaf0912bf,
-            IsBest: true,
+            IsBest: false,
             ID: 1,
         },
         decker.Image{
-            Hash: 0x98adf32,
+            Hash: 0x98adf2bf,
             IsBest: false,
             ID: 1,
         },
@@ -85,10 +87,18 @@ map[uint64][]decker.Image
 2 -> []decker.Image{
         decker.Image{
             Hash: 0x1003001,
-            IsBest: true,
+            IsBest: false,
             ID: 2,
         },
         // ... any duplicates of `2`
         // if there aren't any, this entry gets deleted
 }
+
+// third step is to go over every element in the map and then every image
+// and find the best image based on resolution
+
+// TODO
 ```
+
+Maybe there is some way to optimize this to do more operations at the same time? Right now this involves going over the images 3 times
+
