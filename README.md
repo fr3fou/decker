@@ -49,7 +49,7 @@ We'll use the resolution of the images to accomplish this.
         ID: 1,
     },
     decker.Image{
-        Hash: 0x98adf32,
+        Hash: 0x98adf2bf,
         Path: "~/Pictures/Wallpapers/Foo1",
         IsBest: false,
         ID: 1,
