@@ -35,15 +35,7 @@ func (d *Decker) Hash() {
 	var wg sync.WaitGroup
 
 	sem := make(chan int, runtime.NumCPU())
-	hashes := make(chan Image)
-
-	// Add to the hashes array as
-	go func() {
-		for hash := range hashes {
-			d.hashes = append(d.hashes, hash)
-		}
-		fmt.Println(len(d.hashes))
-	}()
+	m := &sync.Mutex{}
 
 	wg.Add(len(d.Input))
 	for p, img := range d.Input {
@@ -63,13 +55,15 @@ func (d *Decker) Hash() {
 			log.Printf("%s hashed with hash %x", path.Base(p), hash.GetHash())
 
 			// Add the hash
-			hashes <- Image{
+			m.Lock()
+			d.hashes = append(d.hashes, Image{
 				Image:  img,
 				Path:   p,
 				ID:     0,
 				Hash:   hash,
 				IsBest: false,
-			}
+			})
+			m.Unlock()
 
 			wg.Done()
 		}(p, img)
@@ -78,7 +72,6 @@ func (d *Decker) Hash() {
 	}
 
 	wg.Wait()
-	close(hashes)
 }
 
 // Check checks all the images in the DB and returns the output

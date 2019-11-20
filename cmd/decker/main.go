@@ -72,9 +72,9 @@ func main() {
 
 	dupeCount := 0
 	for _, dupes := range out {
-		dupeCount += len(dupes) - 1 // remove 1 as that's the original one
 		for i := 1; i < len(dupes); i++ {
 			log.Printf("%s is a duplicate of %s", path.Base(dupes[i].Path), path.Base(dupes[0].Path))
+			dupeCount++
 		}
 	}
 
