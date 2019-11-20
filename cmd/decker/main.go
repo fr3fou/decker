@@ -28,10 +28,10 @@ func main() {
 		}
 
 		file, err := os.Open(p)
-		defer file.Close()
 		if err != nil {
 			return err
 		}
+		defer file.Close()
 
 		ext := path.Ext(p)
 

@@ -5,6 +5,8 @@ import (
 	"image"
 	"log"
 	"path"
+	"runtime"
+	"sync"
 
 	"github.com/corona10/goimagehash"
 	"github.com/pkg/errors"
@@ -30,28 +32,53 @@ type Decker struct {
 
 // Hash takes the perception hash of every image in the array and adds them to the hashes map
 func (d *Decker) Hash() {
-	for p, img := range d.Input {
-		hash, err := goimagehash.PerceptionHash(img)
+	var wg sync.WaitGroup
 
-		if err != nil {
-			log.Println(
-				errors.Wrap(err,
-					fmt.Sprintf("decker: image %s couldn't be hashed", img),
-				),
-			)
+	sem := make(chan int, runtime.NumCPU())
+	hashes := make(chan Image)
+
+	// Add to the hashes array as
+	go func() {
+		for hash := range hashes {
+			d.hashes = append(d.hashes, hash)
 		}
+		fmt.Println(len(d.hashes))
+	}()
 
-		log.Printf("%s hashed with hash %x", path.Base(p), hash.GetHash())
+	wg.Add(len(d.Input))
+	for p, img := range d.Input {
 
-		// Add the hash
-		d.hashes = append(d.hashes, Image{
-			Image:  img,
-			Path:   p,
-			ID:     0,
-			Hash:   hash,
-			IsBest: false,
-		})
+		go func(p string, img image.Image) {
+			sem <- 1
+			hash, err := goimagehash.PerceptionHash(img)
+
+			if err != nil {
+				log.Println(
+					errors.Wrap(err,
+						fmt.Sprintf("decker: image %s couldn't be hashed", img),
+					),
+				)
+			}
+
+			log.Printf("%s hashed with hash %x", path.Base(p), hash.GetHash())
+
+			// Add the hash
+			hashes <- Image{
+				Image:  img,
+				Path:   p,
+				ID:     0,
+				Hash:   hash,
+				IsBest: false,
+			}
+
+			wg.Done()
+		}(p, img)
+
+		<-sem
 	}
+
+	wg.Wait()
+	close(hashes)
 }
 
 // Check checks all the images in the DB and returns the output
