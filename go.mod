@@ -1,4 +1,4 @@
-module github.com/fr3fou/decker-cli
+module github.com/fr3fou/decker
 
 go 1.13
 
