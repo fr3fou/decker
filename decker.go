@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"image"
 	"log"
+	"path"
 
 	"github.com/corona10/goimagehash"
 	"github.com/pkg/errors"
@@ -29,7 +30,7 @@ type Decker struct {
 
 // Hash takes the perception hash of every image in the array and adds them to the hashes map
 func (d *Decker) Hash() {
-	for path, img := range d.Input {
+	for p, img := range d.Input {
 		hash, err := goimagehash.PerceptionHash(img)
 
 		if err != nil {
@@ -40,10 +41,12 @@ func (d *Decker) Hash() {
 			)
 		}
 
+		log.Printf("%s hashed with hash %x", path.Base(p), hash.GetHash())
+
 		// Add the hash
 		d.hashes = append(d.hashes, Image{
 			Image:  img,
-			Path:   path,
+			Path:   p,
 			ID:     0,
 			Hash:   hash,
 			IsBest: false,
