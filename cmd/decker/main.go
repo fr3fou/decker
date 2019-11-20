@@ -69,7 +69,9 @@ func main() {
 		panic(err)
 	}
 
-	for k, v := range out {
-		log.Printf("%+v -> %+v", k, v)
+	for _, dupes := range out {
+		for i := 1; i < len(dupes); i++ {
+			log.Printf("%s is a duplicate of %s", dupes[i].Path, dupes[0].Path)
+		}
 	}
 }
