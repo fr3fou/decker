@@ -94,9 +94,6 @@ func (d *Decker) Check() (Output, error) {
 		id++
 		img1.ID = id
 
-		// Add the image first
-		// Can this be optimized?
-		// img1 might not have any duplicates so we are wasting space
 		output[img1.ID] = []Image{}
 		output[img1.ID] = append(output[img1.ID], img1)
 
