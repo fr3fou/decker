@@ -78,7 +78,9 @@ func (d *Decker) Check() (Output, error) {
 		output[img1.ID] = append(output[img1.ID], img1)
 
 		// Compare to the rest of the images
-		for _, img2 := range d.hashes {
+		// We have to use a C-Style for loop, because we are going to be mutating
+		for i := 0; i < len(d.hashes); i++ {
+			img2 := d.hashes[i]
 			// Ignore if we have the exact same image
 			if img1.Path == img2.Path {
 				continue
@@ -101,6 +103,7 @@ func (d *Decker) Check() (Output, error) {
 			if distance <= d.Threshold {
 				// If the images are duplicates
 				img2.ID = img1.ID
+				d.hashes[i].ID = img1.ID
 
 				// Add the current image
 				output[img1.ID] = append(output[img1.ID], img2)

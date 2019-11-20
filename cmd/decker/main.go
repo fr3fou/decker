@@ -20,7 +20,7 @@ func main() {
 
 	dir := os.Args[1]
 
-	var imgs []image.Image
+	imgs := map[string]image.Image{}
 
 	err := filepath.Walk(dir, func(p string, info os.FileInfo, err error) error {
 		if err != nil {
@@ -44,7 +44,7 @@ func main() {
 
 			log.Printf("%s encoded with format %s", path.Base(p), fom)
 
-			imgs = append(imgs, img)
+			imgs[p] = img
 		default:
 			log.Printf("%s is an unsupported format %s", path.Base(p), ext)
 			return nil
@@ -57,5 +57,19 @@ func main() {
 		log.Println(err)
 	}
 
-	_ = decker.Decker{}
+	d := decker.Decker{
+		Input:     imgs,
+		Threshold: 5,
+	}
+
+	d.Hash()
+	out, err := d.Check()
+
+	if err != nil {
+		panic(err)
+	}
+
+	for k, v := range out {
+		log.Printf("%+v -> %+v", k, v)
+	}
 }
