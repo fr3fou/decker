@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"image"
 	_ "image/gif"
 	_ "image/jpeg"
@@ -22,9 +21,10 @@ func main() {
 	}
 
 	imgs := []decker.Image{}
-	fmt.Println(runtime.NumCPU())
+
 	ch := make(chan decker.Image, runtime.NumCPU())
 	dir := os.Args[1]
+
 	var wg sync.WaitGroup
 
 	go func() {
@@ -34,8 +34,6 @@ func main() {
 	}()
 
 	err := filepath.Walk(dir, func(p string, info os.FileInfo, err error) error {
-		wg.Add(1)
-		defer wg.Done()
 
 		if err != nil {
 			return err
@@ -51,9 +49,11 @@ func main() {
 
 		switch ext {
 		case ".jpg", ".jpeg", ".png":
+			wg.Add(1)
 			img, fom, err := image.Decode(file)
 
 			if err != nil {
+				wg.Done()
 				return err
 			}
 
@@ -61,6 +61,7 @@ func main() {
 
 			go func() {
 				ch <- decker.Hash(img, p)
+				wg.Done()
 			}()
 		default:
 			log.Printf("%s is an unsupported format %s", path.Base(p), ext)
