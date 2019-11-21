@@ -39,7 +39,7 @@ func (d *Decker) Hash(img Image) {
 	if err != nil {
 		log.Println(
 			errors.Wrap(err,
-				fmt.Sprintf("decker: image %s couldn't be hashed", img),
+				fmt.Sprintf("decker: image %s couldn't be hashed", img.Path),
 			),
 		)
 	}
