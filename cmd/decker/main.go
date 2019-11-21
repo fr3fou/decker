@@ -9,6 +9,7 @@ import (
 	"os"
 	"path"
 	"path/filepath"
+	"runtime"
 	"sync"
 
 	"github.com/fr3fou/decker"
@@ -23,6 +24,7 @@ func main() {
 
 	dir := os.Args[1]
 	m := &sync.Mutex{}
+	sem := make(chan int, runtime.NumCPU())
 
 	var wg sync.WaitGroup
 
@@ -31,34 +33,38 @@ func main() {
 			return err
 		}
 
-		file, err := os.Open(p)
-		if err != nil {
-			return err
-		}
-		defer file.Close()
-
 		ext := path.Ext(p)
 
 		switch ext {
 		case ".jpg", ".jpeg", ".png":
 			wg.Add(1)
-			img, fom, err := image.Decode(file)
+			sem <- 1
 
+			file, err := os.Open(p)
 			if err != nil {
 				wg.Done()
 				return err
 			}
 
-			log.Printf("%s encoded with format %s", path.Base(p), fom)
-
 			go func() {
+				defer func() { <-sem }()
+				defer wg.Done()
+				defer file.Close()
+
+				img, fom, err := image.Decode(file)
+
+				if err != nil {
+					log.Printf("couldn't decode %s", path.Base(p))
+					return
+				}
+
+				log.Printf("%s decoded with format %s", path.Base(p), fom)
+
 				i := decker.Hash(img, p)
 
 				m.Lock()
 				imgs = append(imgs, i)
 				m.Unlock()
-
-				wg.Done()
 			}()
 		default:
 			log.Printf("%s is an unsupported format %s", path.Base(p), ext)
