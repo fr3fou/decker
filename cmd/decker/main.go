@@ -9,7 +9,6 @@ import (
 	"os"
 	"path"
 	"path/filepath"
-	"runtime"
 	"sync"
 
 	"github.com/fr3fou/decker"
@@ -22,19 +21,12 @@ func main() {
 
 	imgs := []decker.Image{}
 
-	ch := make(chan decker.Image, runtime.NumCPU())
 	dir := os.Args[1]
+	m := &sync.Mutex{}
 
 	var wg sync.WaitGroup
 
-	go func() {
-		for k := range ch {
-			imgs = append(imgs, k)
-		}
-	}()
-
 	err := filepath.Walk(dir, func(p string, info os.FileInfo, err error) error {
-
 		if err != nil {
 			return err
 		}
@@ -60,7 +52,12 @@ func main() {
 			log.Printf("%s encoded with format %s", path.Base(p), fom)
 
 			go func() {
-				ch <- decker.Hash(img, p)
+				i := decker.Hash(img, p)
+
+				m.Lock()
+				imgs = append(imgs, i)
+				m.Unlock()
+
 				wg.Done()
 			}()
 		default:
@@ -72,7 +69,6 @@ func main() {
 	})
 
 	wg.Wait()
-	close(ch)
 
 	if err != nil {
 		log.Println(err)
