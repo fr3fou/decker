@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"image"
 	_ "image/gif"
 	_ "image/jpeg"
@@ -16,13 +17,22 @@ import (
 )
 
 func main() {
-	if len(os.Args) < 1 {
-		panic("please provide the directory")
+
+	dir := ""
+	flag.StringVar(&dir, "dir", "", "path to the directory which contains the images")
+	flag.StringVar(&dir, "d", "", "path to the directory which contains the images")
+
+	threshold := 5
+	flag.IntVar(&threshold, "threshold", 5, "threshold amount")
+	flag.IntVar(&threshold, "t", 5, "threshold amount")
+
+	flag.Parse()
+
+	if dir == "" {
+		panic("dir flag is required")
 	}
 
 	imgs := []decker.Image{}
-
-	dir := os.Args[1]
 	m := &sync.Mutex{}
 	sem := make(chan int, runtime.NumCPU())
 
@@ -77,7 +87,7 @@ func main() {
 		log.Println(err)
 	}
 
-	out, err := decker.Check(imgs, 5)
+	out, err := decker.Check(imgs, threshold)
 
 	if err != nil {
 		panic(err)
