@@ -9,6 +9,7 @@ import (
 	"os"
 	"path"
 	"path/filepath"
+	"sync"
 
 	"github.com/fr3fou/decker"
 )
@@ -20,7 +21,10 @@ func main() {
 
 	dir := os.Args[1]
 
-	imgs := map[string]image.Image{}
+	d := decker.Decker{
+		Threshold: 5,
+		Mutex:     &sync.Mutex{},
+	}
 
 	err := filepath.Walk(dir, func(p string, info os.FileInfo, err error) error {
 		if err != nil {
@@ -45,7 +49,10 @@ func main() {
 
 			log.Printf("%s encoded with format %s", path.Base(p), fom)
 
-			imgs[p] = img
+			go d.Hash(decker.Image{
+				Image: img,
+				Path:  p,
+			})
 		default:
 			log.Printf("%s is an unsupported format %s", path.Base(p), ext)
 			return nil
@@ -58,12 +65,6 @@ func main() {
 		log.Println(err)
 	}
 
-	d := decker.Decker{
-		Input:     imgs,
-		Threshold: 5,
-	}
-
-	d.Hash()
 	out, err := d.Check()
 
 	if err != nil {
