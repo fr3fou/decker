@@ -2,10 +2,8 @@ package decker
 
 import (
 	"fmt"
-	"image"
 	"log"
 	"path"
-	"runtime"
 	"sync"
 
 	"github.com/corona10/goimagehash"
@@ -18,10 +16,7 @@ type Output map[uint64][]Image
 
 // Decker is the main struct of the app
 type Decker struct {
-	// TOOD: replace with channel?
-	// somehow make concurrent
-	// Input is a map of Path -> image.Image
-	Input map[string]image.Image
+	*sync.Mutex
 	// hashes is an array for
 	// internal use cases
 	hashes []Image
@@ -30,48 +25,35 @@ type Decker struct {
 	Threshold int
 }
 
-// Hash takes the perception hash of every image in the array and adds them to the hashes map
-func (d *Decker) Hash() {
-	var wg sync.WaitGroup
+func New(threshold int) *Decker {
+	return &Decker{
+		Threshold: threshold,
+		Mutex:     &sync.Mutex{},
+	}
+}
 
-	sem := make(chan int, runtime.NumCPU())
-	m := &sync.Mutex{}
+// Hash takes the perception hash of an image and adds it to the hashes map
+func (d *Decker) Hash(img Image) {
+	hash, err := goimagehash.PerceptionHash(img)
 
-	wg.Add(len(d.Input))
-	for p, img := range d.Input {
-
-		go func(p string, img image.Image) {
-			sem <- 1
-			hash, err := goimagehash.PerceptionHash(img)
-
-			if err != nil {
-				log.Println(
-					errors.Wrap(err,
-						fmt.Sprintf("decker: image %s couldn't be hashed", img),
-					),
-				)
-			}
-
-			log.Printf("%s hashed with hash %x", path.Base(p), hash.GetHash())
-
-			// Add the hash
-			m.Lock()
-			d.hashes = append(d.hashes, Image{
-				Image:  img,
-				Path:   p,
-				ID:     0,
-				Hash:   hash,
-				IsBest: false,
-			})
-			m.Unlock()
-
-			wg.Done()
-		}(p, img)
-
-		<-sem
+	if err != nil {
+		log.Println(
+			errors.Wrap(err,
+				fmt.Sprintf("decker: image %s couldn't be hashed", img),
+			),
+		)
 	}
 
-	wg.Wait()
+	img.Hash = hash
+	img.ID = 0
+	img.IsBest = false
+
+	log.Printf("%s hashed with hash %x", path.Base(img.Path), hash.GetHash())
+
+	// Add the hash
+	d.Lock()
+	d.hashes = append(d.hashes, img)
+	d.Unlock()
 }
 
 // Check checks all the images in the DB and returns the output
