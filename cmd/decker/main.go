@@ -17,7 +17,6 @@ import (
 )
 
 func main() {
-
 	dir := ""
 	flag.StringVar(&dir, "dir", "", "path to the directory which contains the images")
 	flag.StringVar(&dir, "d", "", "path to the directory which contains the images")
@@ -33,7 +32,11 @@ func main() {
 	}
 
 	imgs := []decker.Image{}
+
+	// Mutex for writing to the imgs array
 	m := &sync.Mutex{}
+
+	// Semaphore due to `ulimit`
 	sem := make(chan int, runtime.NumCPU())
 
 	err := filepath.Walk(dir, func(p string, info os.FileInfo, err error) error {
@@ -45,6 +48,8 @@ func main() {
 
 		switch ext {
 		case ".jpg", ".jpeg", ".png":
+			// Block here, as there's a limited amount of files open at a given time
+			// Check `ulimit -n`
 			sem <- 1
 
 			file, err := os.Open(p)
@@ -79,6 +84,7 @@ func main() {
 		return nil
 	})
 
+	// Add the last jobs
 	for i := 0; i < runtime.NumCPU(); i++ {
 		sem <- 1
 	}
