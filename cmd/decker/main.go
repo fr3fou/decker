@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"image"
 	_ "image/gif"
 	_ "image/jpeg"
@@ -9,6 +10,7 @@ import (
 	"os"
 	"path"
 	"path/filepath"
+	"runtime"
 	"sync"
 
 	"github.com/fr3fou/decker"
@@ -19,14 +21,22 @@ func main() {
 		panic("please provide the directory")
 	}
 
+	imgs := []decker.Image{}
+	fmt.Println(runtime.NumCPU())
+	ch := make(chan decker.Image, runtime.NumCPU())
 	dir := os.Args[1]
+	var wg sync.WaitGroup
 
-	d := decker.Decker{
-		Threshold: 5,
-		Mutex:     &sync.Mutex{},
-	}
+	go func() {
+		for k := range ch {
+			imgs = append(imgs, k)
+		}
+	}()
 
 	err := filepath.Walk(dir, func(p string, info os.FileInfo, err error) error {
+		wg.Add(1)
+		defer wg.Done()
+
 		if err != nil {
 			return err
 		}
@@ -49,10 +59,9 @@ func main() {
 
 			log.Printf("%s encoded with format %s", path.Base(p), fom)
 
-			go d.Hash(decker.Image{
-				Image: img,
-				Path:  p,
-			})
+			go func() {
+				ch <- decker.Hash(img, p)
+			}()
 		default:
 			log.Printf("%s is an unsupported format %s", path.Base(p), ext)
 			return nil
@@ -61,11 +70,14 @@ func main() {
 		return nil
 	})
 
+	wg.Wait()
+	close(ch)
+
 	if err != nil {
 		log.Println(err)
 	}
 
-	out, err := d.Check()
+	out, err := decker.Check(imgs, 5)
 
 	if err != nil {
 		panic(err)

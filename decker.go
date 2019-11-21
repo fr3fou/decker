@@ -2,9 +2,9 @@ package decker
 
 import (
 	"fmt"
+	"image"
 	"log"
 	"path"
-	"sync"
 
 	"github.com/corona10/goimagehash"
 	"github.com/pkg/errors"
@@ -14,57 +14,41 @@ import (
 // ID -> []decker.Image
 type Output map[uint64][]Image
 
-// Decker is the main struct of the app
-type Decker struct {
-	*sync.Mutex
-	// hashes is an array for
-	// internal use cases
-	hashes []Image
-	// Threshold is the minimum hamming distance
-	// for 2 images to be considered "different"
-	Threshold int
-}
-
-func New(threshold int) *Decker {
-	return &Decker{
-		Threshold: threshold,
-		Mutex:     &sync.Mutex{},
-	}
-}
-
 // Hash takes the perception hash of an image and adds it to the hashes map
-func (d *Decker) Hash(img Image) {
+func Hash(img image.Image, p string) Image {
 	hash, err := goimagehash.PerceptionHash(img)
 
 	if err != nil {
 		log.Println(
 			errors.Wrap(err,
-				fmt.Sprintf("decker: image %s couldn't be hashed", img.Path),
+				fmt.Sprintf("decker: image %s couldn't be hashed", p),
 			),
 		)
 	}
 
-	img.Hash = hash
-	img.ID = 0
-	img.IsBest = false
+	i := Image{
+		Image:  img,
+		Hash:   hash,
+		ID:     0,
+		IsBest: false,
+		Path:   p,
+	}
 
-	log.Printf("%s hashed with hash %x", path.Base(img.Path), hash.GetHash())
+	log.Printf("%s hashed with hash %x", path.Base(p), hash.GetHash())
 
 	// Add the hash
-	d.Lock()
-	d.hashes = append(d.hashes, img)
-	d.Unlock()
+	return i
 }
 
 // Check checks all the images in the DB and returns the output
-func (d *Decker) Check() (Output, error) {
+func Check(hashes []Image, threshold int) (Output, error) {
 	output := Output{}
 
 	// when making concurrent, use a mutex or a random UUID?
 	var id uint64 = 0
 
 	// Compare each image with eachother
-	for _, img1 := range d.hashes {
+	for _, img1 := range hashes {
 		// if it's an image that we have seen before
 		// (already exists in our map)
 		// we should just carry on
@@ -81,8 +65,8 @@ func (d *Decker) Check() (Output, error) {
 
 		// Compare to the rest of the images
 		// We have to use a C-Style for loop, because we are going to be mutating
-		for i := 0; i < len(d.hashes); i++ {
-			img2 := d.hashes[i]
+		for i := 0; i < len(hashes); i++ {
+			img2 := hashes[i]
 			// Ignore if we have the exact same image
 			if img1.Path == img2.Path {
 				continue
@@ -102,10 +86,10 @@ func (d *Decker) Check() (Output, error) {
 				continue
 			}
 
-			if distance <= d.Threshold {
+			if distance <= threshold {
 				// If the images are duplicates
 				img2.ID = img1.ID
-				d.hashes[i].ID = img1.ID
+				hashes[i].ID = img1.ID
 
 				// Add the current image
 				output[img1.ID] = append(output[img1.ID], img2)
