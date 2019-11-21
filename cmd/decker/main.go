@@ -26,8 +26,6 @@ func main() {
 	m := &sync.Mutex{}
 	sem := make(chan int, runtime.NumCPU())
 
-	var wg sync.WaitGroup
-
 	err := filepath.Walk(dir, func(p string, info os.FileInfo, err error) error {
 		if err != nil {
 			return err
@@ -37,18 +35,15 @@ func main() {
 
 		switch ext {
 		case ".jpg", ".jpeg", ".png":
-			wg.Add(1)
 			sem <- 1
 
 			file, err := os.Open(p)
 			if err != nil {
-				wg.Done()
 				return err
 			}
 
 			go func() {
 				defer func() { <-sem }()
-				defer wg.Done()
 				defer file.Close()
 
 				img, fom, err := image.Decode(file)
@@ -74,7 +69,9 @@ func main() {
 		return nil
 	})
 
-	wg.Wait()
+	for i := 0; i < runtime.NumCPU(); i++ {
+		sem <- 1
+	}
 
 	if err != nil {
 		log.Println(err)
