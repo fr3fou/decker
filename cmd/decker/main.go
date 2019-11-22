@@ -11,6 +11,7 @@ import (
 	"path"
 	"path/filepath"
 	"runtime"
+	"strings"
 	"sync"
 
 	"github.com/fr3fou/decker"
@@ -44,10 +45,10 @@ func main() {
 			return err
 		}
 
-		ext := path.Ext(p)
+		ext := strings.ToLower(path.Ext(p))
 
 		switch ext {
-		case ".jpg", ".jpeg", ".png", ".JPG", ".JPEG", ".PNG":
+		case ".jpg", ".jpeg", ".png":
 			// Block here, as there's a limited amount of files open at a given time
 			// Check `ulimit -n`
 			sem <- 1
