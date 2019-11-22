@@ -15,6 +15,7 @@
 - [ ] Tests
 - [ ] Find `IsBest` field based on resolution
 - [x] CLI
+- [ ] Handle rotated images
 - [ ] GUI in [zserge/lorca](https://github.com/zserge/lorca)
   - [ ] Delete dupes / prompt / preview
 
