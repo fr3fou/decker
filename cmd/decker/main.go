@@ -47,7 +47,7 @@ func main() {
 		ext := path.Ext(p)
 
 		switch ext {
-		case ".jpg", ".jpeg", ".png":
+		case ".jpg", ".jpeg", ".png", ".JPG", ".JPEG", ".PNG":
 			// Block here, as there's a limited amount of files open at a given time
 			// Check `ulimit -n`
 			sem <- 1
