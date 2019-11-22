@@ -13,7 +13,7 @@
 - [x] Implement sequential first, then concurrent
   - [x] Think of data structure that can hold the best quality image and the respective duplicates as children
 - [ ] Tests
-- [ ] Find `IsBest` field based on resolution
+- [x] Find `IsBest` field based on resolution
 - [x] CLI
 - [ ] Handle rotated images
 - [ ] GUI in [zserge/lorca](https://github.com/zserge/lorca)
