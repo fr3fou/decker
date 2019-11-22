@@ -101,12 +101,12 @@ func main() {
 
 	dupeCount := 0
 	for _, dupes := range out {
+		log.Printf("%s has a resolution of %dx%d and has %d dupes", path.Base(dupes[0].Path), dupes[0].Bounds().Dx(), dupes[0].Bounds().Dy(), len(dupes)-1)
 		for i := 1; i < len(dupes); i++ {
-			log.Printf("%s is a duplicate of %s", path.Base(dupes[i].Path), path.Base(dupes[0].Path))
+			log.Printf("\t%s is a duplicate of %s", path.Base(dupes[i].Path), path.Base(dupes[0].Path))
 			dupeCount++
 		}
 	}
 
 	log.Printf("%d dupes found", dupeCount)
-
 }

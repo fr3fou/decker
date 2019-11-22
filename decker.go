@@ -103,5 +103,37 @@ func Check(hashes []Image, threshold int) (Output, error) {
 		}
 	}
 
+	checkForBest(output)
+
 	return output, nil
+}
+
+func checkForBest(imgs Output) {
+	for _, v := range imgs {
+		bestIdx := -1
+		bounds1 := v[0].Bounds()
+		res1 := bounds1.Dx() * bounds1.Dy()
+		for i := 1; i < len(v); i++ {
+			bounds2 := v[i].Bounds()
+			res2 := bounds2.Dx() * bounds2.Dy()
+			if res2 > res1 {
+				if bestIdx > 0 {
+					// Update the previous one
+					v[bestIdx].IsBest = false
+				}
+
+				bestIdx = i
+
+				v[bestIdx].IsBest = true
+
+				res1 = res2
+				bounds1 = bounds2
+			}
+		}
+
+		if bestIdx > 0 {
+			// Swap
+			v[0], v[bestIdx] = v[bestIdx], v[0]
+		}
+	}
 }
