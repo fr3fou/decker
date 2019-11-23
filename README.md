@@ -1,5 +1,22 @@
 # decker
 
+👯 Check for duplicate images and find the best one in a folder with an easy to use CLI and GUI!
+
+## Usage
+
+```
+Usage of decker:
+  -d string
+        path to the directory which contains the images
+  -dir string
+        path to the directory which contains the images
+  -t int
+        threshold amount (default 5)
+  -threshold int
+        threshold amount (default 5)
+
+```
+
 ## Resources used
 
 - https://cotin.tech/Algorithm/ImageSimilarityComparison/
