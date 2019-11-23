@@ -53,7 +53,7 @@ ALL of `decker.Image` - wrapping the normal `image.Image`, while adding
 
 - the path
 - the hash
-- the ID (originally set to -1)
+- the ID of a bucket (originally set to 0)
 - IsBest field
 
 After the map has been created, we can lazily go over each entry and find the correct `IsBest` image.
@@ -88,6 +88,8 @@ We'll use the resolution of the images to accomplish this.
 // hence why they are added on the `1` key of the map
 
 // ID -> siblings array
+// The key is an ID
+// The value is a bucket of duplicate images
 map[uint64][]decker.Image
 
 1 -> []decker.Image{
