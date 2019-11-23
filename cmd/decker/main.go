@@ -29,7 +29,12 @@ func main() {
 	flag.Parse()
 
 	if dir == "" {
-		panic("dir flag is required")
+		var err error
+		dir, err = os.Getwd()
+
+		if err != nil {
+			panic(err)
+		}
 	}
 
 	imgs := []decker.Image{}
