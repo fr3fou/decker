@@ -123,4 +123,4 @@ Maybe there is some way to optimize this to do more operations at the same time?
 
 ## Shoutouts
 
-[mlvzk](http://github.com/mlvzk/)
+[mlvzk](http://github.com/mlvzk/) - helping out with concurrency and general lib structure
