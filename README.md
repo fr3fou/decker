@@ -121,3 +121,6 @@ map[uint64][]decker.Image
 
 Maybe there is some way to optimize this to do more operations at the same time? Right now this involves going over the images 3 times
 
+## Shoutouts
+
+[mlvzk](http://github.com/mlvzk/)
