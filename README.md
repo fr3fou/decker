@@ -27,7 +27,7 @@ Usage of decker:
 
 ## TODO
 
-- [x] Implement sequential first, then concurrent
+- [x] Implement sequential first, then concurrent - on average, the concurrent version is ~3.5x faster 
   - [x] Think of data structure that can hold the best quality image and the respective duplicates as children
 - [ ] Tests
 - [x] Find `IsBest` field based on resolution
