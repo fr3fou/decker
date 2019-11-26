@@ -33,6 +33,7 @@ Usage of decker:
 - [x] Find `IsBest` field based on resolution
 - [x] CLI
 - [ ] Handle rotated images
+- [ ] Implement pHash here instead of relying on thirdparty library
 - [ ] GUI in [zserge/lorca](https://github.com/zserge/lorca)
   - [ ] Delete dupes / prompt / preview
 
