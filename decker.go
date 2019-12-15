@@ -14,7 +14,7 @@ import (
 // ID -> []decker.Image
 type Output map[uint64][]Image
 
-// Hash takes the perception hash of an image and adds it to the hashes map
+// Hash takes the perception hash of an image and returns it
 func Hash(img image.Image, p string) Image {
 	hash, err := goimagehash.PerceptionHash(img)
 
@@ -26,18 +26,15 @@ func Hash(img image.Image, p string) Image {
 		)
 	}
 
-	i := Image{
+	log.Printf("%s hashed with hash %x", path.Base(p), hash.GetHash())
+	
+	return Image{
 		Image:  img,
 		Hash:   hash,
 		ID:     0,
 		IsBest: false,
 		Path:   p,
 	}
-
-	log.Printf("%s hashed with hash %x", path.Base(p), hash.GetHash())
-
-	// Add the hash
-	return i
 }
 
 // Check checks all the images in the DB and returns the output
