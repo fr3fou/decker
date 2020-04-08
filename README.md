@@ -29,7 +29,7 @@ Usage of decker:
 
 - [x] Implement sequential first, then concurrent - on average, the concurrent version is ~3.5x faster
   - [x] Think of data structure that can hold the best quality image and the respective duplicates as children
-    - [ ] Implement a k-d tree
+    - [ ] Implement a ~~k-d tree~~ BK-Tree?
 - [ ] Tests
 - [x] Find `IsBest` field based on resolution
 - [x] CLI
@@ -40,7 +40,7 @@ Usage of decker:
 
 ## Data structure
 
-**This can be replaced with a k-d tree**
+**This can be replaced with a BK-Tree**
 A data structure will have to be created that has the following properties:
 
 - needs to store:
