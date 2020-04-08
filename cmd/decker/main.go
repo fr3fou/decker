@@ -14,6 +14,7 @@ import (
 	"strings"
 	"sync"
 
+	"github.com/corona10/goimagehash"
 	"github.com/fr3fou/decker"
 )
 
@@ -39,7 +40,7 @@ func main() {
 		}
 	}
 
-	imgs := []decker.Image{}
+	tree := decker.NewTree(threshold)
 
 	// Mutex for writing to the imgs array
 	m := &sync.Mutex{}
@@ -78,11 +79,18 @@ func main() {
 
 				log.Printf("%s decoded with format %s", path.Base(p), fom)
 
-				i := decker.Hash(img, p)
-
+				hash, err := goimagehash.PerceptionHash(img)
+				if err != nil {
+					log.Printf("couldn't hash image %s", p)
+					return
+				}
 				m.Lock()
-				imgs = append(imgs, i)
+				_, err = tree.Insert(img, hash, p)
 				m.Unlock()
+				if err != nil {
+					log.Printf("couldn't insert image %s into tree", p)
+					return
+				}
 			}()
 		default:
 			log.Printf("%s is an unsupported format %s", path.Base(p), ext)
@@ -91,27 +99,24 @@ func main() {
 
 		return nil
 	})
+	if err != nil {
+		panic(err)
+	}
 
 	// Add the last jobs
 	for i := 0; i < runtime.NumCPU(); i++ {
 		sem <- finishedEvent{}
 	}
 
-	if err != nil {
-		log.Println(err)
-	}
-
-	out, err := decker.Check(imgs, threshold)
-
-	if err != nil {
-		panic(err)
-	}
-
 	dupeCount := 0
-	for _, dupes := range out {
-		log.Printf("%s has a resolution of %dx%d and has %d dupes", path.Base(dupes[0].Path), dupes[0].Bounds().Dx(), dupes[0].Bounds().Dy(), len(dupes)-1)
-		for i := 1; i < len(dupes); i++ {
-			log.Printf("\t%s is a duplicate of %s", path.Base(dupes[i].Path), path.Base(dupes[0].Path))
+	for _, node := range tree.Nodes {
+		dupes := node.Children
+		if len(dupes) == 0 {
+			continue
+		}
+		log.Printf("%s has a resolution of %dx%d and has %d dupes", path.Base(node.Path), node.Image.Bounds().Dx(), node.Image.Bounds().Dy(), len(dupes))
+		for i := 0; i < len(dupes); i++ {
+			log.Printf("\t%s is a duplicate of %s", path.Base(dupes[i].Path), path.Base(node.Path))
 			dupeCount++
 		}
 	}
