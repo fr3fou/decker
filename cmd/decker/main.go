@@ -45,7 +45,7 @@ func main() {
 	m := &sync.Mutex{}
 
 	// Semaphore due to `ulimit`
-	sem := make(chan FinishedEvent, runtime.NumCPU())
+	sem := make(chan finishedEvent, runtime.NumCPU())
 
 	err := filepath.Walk(dir, func(p string, info os.FileInfo, err error) error {
 		if err != nil {
@@ -58,7 +58,7 @@ func main() {
 		case ".jpg", ".jpeg", ".png":
 			// Block here, as there's a limited amount of files open at a given time
 			// Check `ulimit -n`
-			sem <- FinishedEvent{}
+			sem <- finishedEvent{}
 
 			file, err := os.Open(p)
 			if err != nil {
@@ -94,7 +94,7 @@ func main() {
 
 	// Add the last jobs
 	for i := 0; i < runtime.NumCPU(); i++ {
-		sem <- FinishedEvent{}
+		sem <- finishedEvent{}
 	}
 
 	if err != nil {
