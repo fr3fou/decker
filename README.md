@@ -53,6 +53,28 @@ A data structure will have to be created that has the following properties:
   - the duplicate images
 - needs to have an array of it
 
+### Current solution
+
+```go
+type Node struct {
+	Image    image.Image
+	Path     string
+	Hash     *goimagehash.ImageHash
+	Children []Node
+}
+
+type Tree struct {
+	Threshold int
+	Nodes     []Node
+}
+// where Tree holds all of the unique images
+// and Node holds all the duplciates of the images
+```
+
+### Old Solution
+
+This is the old solution that was rewritten
+
 How about this?
 The idea is that in the first array, we are going to hold
 ALL of `decker.Image` - wrapping the normal `image.Image`, while adding
