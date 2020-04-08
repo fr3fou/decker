@@ -26,6 +26,7 @@ Usage of decker:
 - https://towardsdatascience.com/symspell-vs-bk-tree-100x-faster-fuzzy-string-search-spell-checking-c4f10d80a078
 - https://signal-to-noise.xyz/post/bk-tree/
 - https://www.geeksforgeeks.org/bk-tree-introduction-implementation
+- https://medium.com/@wolfgarbe/fast-approximate-string-matching-with-large-edit-distances-in-big-data-2015-9174a0968c0b
 
 ## TODO
 
