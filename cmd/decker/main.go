@@ -12,12 +12,11 @@ import (
 	"path/filepath"
 	"runtime"
 	"strings"
-	"sync"
 
 	"github.com/fr3fou/decker"
 )
 
-type FinishedEvent struct{}
+type finishedEvent = struct{}
 
 func main() {
 	dir := ""
@@ -39,13 +38,13 @@ func main() {
 		}
 	}
 
-	imgs := []decker.Image{}
+	n := runtime.NumCPU()
 
-	// Mutex for writing to the imgs array
-	m := &sync.Mutex{}
+	// Channel instead of mutex
+	imageChan := make(chan decker.Image, n)
 
 	// Semaphore due to `ulimit`
-	sem := make(chan FinishedEvent, runtime.NumCPU())
+	sem := make(chan finishedEvent, n)
 
 	err := filepath.Walk(dir, func(p string, info os.FileInfo, err error) error {
 		if err != nil {
@@ -58,7 +57,7 @@ func main() {
 		case ".jpg", ".jpeg", ".png":
 			// Block here, as there's a limited amount of files open at a given time
 			// Check `ulimit -n`
-			sem <- FinishedEvent{}
+			sem <- finishedEvent{}
 
 			file, err := os.Open(p)
 			if err != nil {
@@ -78,11 +77,13 @@ func main() {
 
 				log.Printf("%s decoded with format %s", path.Base(p), fom)
 
-				i := decker.Hash(img, p)
+				i, err := decker.Hash(img, p)
+				if err != nil {
+					log.Printf("couldn't hash %s", path.Base(p))
+					return
+				}
 
-				m.Lock()
-				imgs = append(imgs, i)
-				m.Unlock()
+				imageChan <- *i
 			}()
 		default:
 			log.Printf("%s is an unsupported format %s", path.Base(p), ext)
@@ -91,18 +92,21 @@ func main() {
 
 		return nil
 	})
+	if err != nil {
+		panic(err)
+	}
 
 	// Add the last jobs
 	for i := 0; i < runtime.NumCPU(); i++ {
-		sem <- FinishedEvent{}
+		sem <- finishedEvent{}
 	}
 
-	if err != nil {
-		log.Println(err)
+	imageSlice := []decker.Image{}
+	for img := range imageChan {
+		imageSlice = append(imageSlice, img)
 	}
 
-	out, err := decker.Check(imgs, threshold)
-
+	out, err := decker.Check(imageSlice, threshold)
 	if err != nil {
 		panic(err)
 	}
