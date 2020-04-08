@@ -17,7 +17,7 @@ import (
 	"github.com/fr3fou/decker"
 )
 
-type FinishedEvent struct{}
+type finishedEvent struct{}
 
 func main() {
 	dir := ""
