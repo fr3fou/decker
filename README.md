@@ -4,7 +4,7 @@
 
 ## Usage
 
-```
+```console
 Usage of decker:
   -d string
         path to the directory which contains the images
@@ -29,11 +29,11 @@ Usage of decker:
 - https://medium.com/@wolfgarbe/fast-approximate-string-matching-with-large-edit-distances-in-big-data-2015-9174a0968c0b
 - https://towardsdatascience.com/symspell-vs-bk-tree-100x-faster-fuzzy-string-search-spell-checking-c4f10d80a078
 
-## TODO
+## TODO:
 
 - [x] Implement sequential first, then concurrent - on average, the concurrent version is ~3.5x faster
-  - [x] Think of data structure that can hold the best quality image and the respective duplicates as children
-    - [ ] Implement a ~~k-d tree~~ BK-Tree?
+  - [x] ~~Think of data structure that can hold the best quality image and the respective duplicates as children~~
+    - [ ] Reimplement it
 - [ ] Tests
 - [x] Find `IsBest` field based on resolution
 - [x] CLI
@@ -44,7 +44,6 @@ Usage of decker:
 
 ## Data structure
 
-**This can be replaced with a BK-Tree**
 A data structure will have to be created that has the following properties:
 
 - needs to store:
