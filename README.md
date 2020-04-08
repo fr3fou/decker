@@ -20,10 +20,12 @@ Usage of decker:
 ## Resources used
 
 - https://cotin.tech/Algorithm/ImageSimilarityComparison/
-
 - http://bertolami.com/index.php?engine=blog&content=posts&detail=perceptual-hashing
-
 - https://content-blockchain.org/research/testing-different-image-hash-functions/
+- https://iq.opengenus.org/burkhard-keller-tree/
+- https://towardsdatascience.com/symspell-vs-bk-tree-100x-faster-fuzzy-string-search-spell-checking-c4f10d80a078
+- https://signal-to-noise.xyz/post/bk-tree/
+- https://www.geeksforgeeks.org/bk-tree-introduction-implementation
 
 ## TODO
 
