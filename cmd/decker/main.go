@@ -17,6 +17,8 @@ import (
 	"github.com/fr3fou/decker"
 )
 
+type FinishedEvent struct{}
+
 func main() {
 	dir := ""
 	flag.StringVar(&dir, "dir", "", "path to the directory which contains the images")
@@ -43,7 +45,7 @@ func main() {
 	m := &sync.Mutex{}
 
 	// Semaphore due to `ulimit`
-	sem := make(chan int, runtime.NumCPU())
+	sem := make(chan FinishedEvent, runtime.NumCPU())
 
 	err := filepath.Walk(dir, func(p string, info os.FileInfo, err error) error {
 		if err != nil {
@@ -56,7 +58,7 @@ func main() {
 		case ".jpg", ".jpeg", ".png":
 			// Block here, as there's a limited amount of files open at a given time
 			// Check `ulimit -n`
-			sem <- 1
+			sem <- FinishedEvent{}
 
 			file, err := os.Open(p)
 			if err != nil {
@@ -65,9 +67,9 @@ func main() {
 
 			go func() {
 				defer func() { <-sem }()
-				defer file.Close()
 
 				img, fom, err := image.Decode(file)
+				file.Close()
 
 				if err != nil {
 					log.Printf("couldn't decode %s", path.Base(p))
@@ -92,7 +94,7 @@ func main() {
 
 	// Add the last jobs
 	for i := 0; i < runtime.NumCPU(); i++ {
-		sem <- 1
+		sem <- FinishedEvent{}
 	}
 
 	if err != nil {
