@@ -15,24 +15,26 @@ import (
 type Output map[uint64][]Image
 
 // Hash takes the perception hash of an image and returns it
-func Hash(img image.Image, p string) (*Image, error) {
+func Hash(img image.Image, p string) Image {
 	hash, err := goimagehash.PerceptionHash(img)
 
 	if err != nil {
-		return nil, errors.Wrap(err,
-			fmt.Sprintf("decker: image %s couldn't be hashed", p),
+		log.Println(
+			errors.Wrap(err,
+				fmt.Sprintf("decker: image %s couldn't be hashed", p),
+			),
 		)
 	}
 
 	log.Printf("%s hashed with hash %x", path.Base(p), hash.GetHash())
-
-	return &Image{
+	
+	return Image{
 		Image:  img,
 		Hash:   hash,
 		ID:     0,
 		IsBest: false,
 		Path:   p,
-	}, nil
+	}
 }
 
 // Check checks all the images in the DB and returns the output
