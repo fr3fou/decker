@@ -33,7 +33,7 @@ Usage of decker:
 
 - [x] Implement sequential first, then concurrent - on average, the concurrent version is ~3.5x faster
   - [x] ~~Think of data structure that can hold the best quality image and the respective duplicates as children~~
-    - [ ] Reimplement it
+    - [x] Reimplement it
 - [ ] Tests
 - [x] Find `IsBest` field based on resolution
 - [x] CLI
