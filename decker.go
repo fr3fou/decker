@@ -13,53 +13,53 @@ type Node struct {
 	Children []Node
 }
 
-type Tree struct {
+type Graph struct {
 	Threshold int
 	Nodes     []Node
 }
 
-func NewTree(threshold int) *Tree {
-	return &Tree{
+func NewGraph(threshold int) *Graph {
+	return &Graph{
 		Threshold: threshold,
 		Nodes:     []Node{},
 	}
 }
 
-func (t *Tree) Insert(img image.Image, hash *goimagehash.ImageHash, p string) (int, error) {
+func (g *Graph) Insert(img image.Image, hash *goimagehash.ImageHash, p string) (int, error) {
 	node := Node{
 		Image: img,
 		Hash:  hash,
 		Path:  p,
 	}
 
-	for i := range t.Nodes {
-		distance, err := t.Nodes[i].Hash.Distance(hash)
+	for i := range g.Nodes {
+		distance, err := g.Nodes[i].Hash.Distance(hash)
 		if err != nil {
 			return -1, err
 		}
 
 		// Assume that there is only one possible candidate
-		if distance <= t.Threshold {
+		if distance <= g.Threshold {
 			// If the new image is better
-			if node.isBetterThan(&t.Nodes[i]) {
+			if node.isBetterThan(&g.Nodes[i]) {
 				// Steal the children
-				node.Children = t.Nodes[i].Children
+				node.Children = g.Nodes[i].Children
 				// Insert current parent into children
-				node.Children = append(node.Children, t.Nodes[i])
+				node.Children = append(node.Children, g.Nodes[i])
 				// Become the parent
-				t.Nodes[i] = node
+				g.Nodes[i] = node
 				return i, nil
 			}
 
 			// Otherwise just append current one
-			t.Nodes[i].Children = append(t.Nodes[i].Children, node)
+			g.Nodes[i].Children = append(g.Nodes[i].Children, node)
 			return i, nil
 		}
 	}
 
 	// First time we've seen this image, make a new root
-	t.Nodes = append(t.Nodes, node)
-	return len(t.Nodes) - 1, nil
+	g.Nodes = append(g.Nodes, node)
+	return len(g.Nodes) - 1, nil
 }
 
 func (first *Node) isBetterThan(second *Node) bool {

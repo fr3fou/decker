@@ -63,11 +63,11 @@ type Node struct {
 	Children []Node
 }
 
-type Tree struct {
+type Graph struct {
 	Threshold int
 	Nodes     []Node
 }
-// where Tree holds all of the unique images
+// where Graph holds all of the unique images
 // and Node holds all the duplciates of the images
 ```
 

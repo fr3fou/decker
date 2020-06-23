@@ -40,7 +40,7 @@ func main() {
 		}
 	}
 
-	tree := decker.NewTree(threshold)
+	graph := decker.NewGraph(threshold)
 
 	// Mutex for writing to the imgs array
 	m := &sync.Mutex{}
@@ -85,7 +85,7 @@ func main() {
 					return
 				}
 				m.Lock()
-				_, err = tree.Insert(img, hash, p)
+				_, err = graph.Insert(img, hash, p)
 				m.Unlock()
 				if err != nil {
 					log.Printf("couldn't insert image %s into tree", p)
@@ -109,7 +109,7 @@ func main() {
 	}
 
 	dupeCount := 0
-	for _, node := range tree.Nodes {
+	for _, node := range graph.Nodes {
 		dupes := node.Children
 		if len(dupes) == 0 {
 			continue
