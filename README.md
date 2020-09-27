@@ -2,10 +2,20 @@
 
 👯 Check for duplicate images and find the best one in a folder with an easy to use CLI and GUI!
 
-## Usage
+## Building
 
 ```console
-Usage of decker:
+make		#Builds and installs
+make build	#Builds app with go
+make install	#Installs the already built app (only use after building first)
+make uninstall	#Removes app from path
+```
+## Usage
+
+Console usage
+```console
+  -h
+  	shows this help page
   -d string
         path to the directory which contains the images
   -dir string
