@@ -4,11 +4,11 @@
 
 ## Building
 
-```console
-make		#Builds and installs
-make build	#Builds app with go
-make install	#Installs the already built app (only use after building first)
-make uninstall	#Removes app from path
+```sh
+$ make		# Builds and installs
+$ make build	# Builds app with go
+$ make install	# Installs the already built app (only use after building first)
+$ make uninstall	# Removes app from path
 ```
 ## Usage
 
