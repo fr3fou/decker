@@ -5,23 +5,17 @@ package main
 // A Gio program that demonstrates Gio widgets. See https://gioui.org for more information.
 
 import (
-	"bytes"
 	"flag"
 	"fmt"
 	"image"
 	"image/color"
-	"image/png"
-	"io/ioutil"
 	"log"
 	"math"
 	"os"
 	"time"
 
 	"gioui.org/app"
-	"gioui.org/app/headless"
-	"gioui.org/f32"
 	"gioui.org/font/gofont"
-	"gioui.org/io/router"
 	"gioui.org/io/system"
 	"gioui.org/layout"
 	"gioui.org/op"
@@ -33,7 +27,6 @@ import (
 	"golang.org/x/exp/shiny/materialdesign/icons"
 )
 
-var screenshot = flag.String("screenshot", "", "save a screenshot to a file and exit")
 var disable = flag.Bool("disable", false, "disable all widgets")
 
 type iconAndTextButton struct {
@@ -45,20 +38,12 @@ type iconAndTextButton struct {
 
 func main() {
 	flag.Parse()
-	editor.SetText(longText)
 	ic, err := widget.NewIcon(icons.ContentAdd)
 	if err != nil {
 		log.Fatal(err)
 	}
 	icon = ic
 	progressIncrementer = make(chan int)
-	if *screenshot != "" {
-		if err := saveScreenshot(*screenshot); err != nil {
-			fmt.Fprintf(os.Stderr, "failed to save screenshot: %v\n", err)
-			os.Exit(1)
-		}
-		os.Exit(0)
-	}
 
 	go func() {
 		for {
@@ -76,37 +61,6 @@ func main() {
 	}()
 	app.Main()
 }
-
-func saveScreenshot(f string) error {
-	const scale = 1.5
-	sz := image.Point{X: 800 * scale, Y: 600 * scale}
-	w, err := headless.NewWindow(sz.X, sz.Y)
-	if err != nil {
-		return err
-	}
-	gtx := layout.Context{
-		Ops: new(op.Ops),
-		Metric: unit.Metric{
-			PxPerDp: scale,
-			PxPerSp: scale,
-		},
-		Constraints: layout.Exact(sz),
-		Queue:       new(router.Router),
-	}
-	th := material.NewTheme(gofont.Collection())
-	kitchen(gtx, th)
-	w.Frame(gtx.Ops)
-	img, err := w.Screenshot()
-	if err != nil {
-		return err
-	}
-	var buf bytes.Buffer
-	if err := png.Encode(&buf, img); err != nil {
-		return err
-	}
-	return ioutil.WriteFile(f, buf.Bytes(), 0666)
-}
-
 func loop(w *app.Window) error {
 	th := material.NewTheme(gofont.Collection())
 
@@ -152,26 +106,6 @@ func loop(w *app.Window) error {
 }
 
 func transformedKitchen(gtx layout.Context, th *material.Theme) layout.Dimensions {
-	if !transformTime.IsZero() {
-		dt := float32(gtx.Now.Sub(transformTime).Seconds())
-		angle := dt * .1
-		op.InvalidateOp{}.Add(gtx.Ops)
-		defer op.Push(gtx.Ops).Pop()
-		tr := f32.Affine2D{}
-		tr = tr.Rotate(f32.Pt(300, 20), -angle)
-		scale := 1.0 - dt*.5
-		if scale < 0.5 {
-			scale = 0.5
-		}
-		tr = tr.Scale(f32.Pt(300, 20), f32.Pt(scale, scale))
-		offset := dt * 50
-		if offset > 200 {
-			offset = 200
-		}
-		tr = tr.Offset(f32.Pt(0, offset))
-		op.Affine(tr).Add(gtx.Ops)
-	}
-
 	return kitchen(gtx, th)
 }
 
@@ -309,9 +243,6 @@ func kitchen(gtx layout.Context, th *material.Theme) layout.Dimensions {
 		material.ProgressBar(th, progress).Layout,
 		func(gtx C) D {
 			return layout.Flex{Alignment: layout.Middle}.Layout(gtx,
-				layout.Rigid(
-					material.CheckBox(th, checkbox, "Transform").Layout,
-				),
 				layout.Rigid(func(gtx C) D {
 					return layout.Inset{Left: unit.Dp(16)}.Layout(gtx,
 						material.Switch(th, swtch).Layout,
@@ -361,13 +292,3 @@ func kitchen(gtx layout.Context, th *material.Theme) layout.Dimensions {
 		return layout.UniformInset(unit.Dp(16)).Layout(gtx, widgets[i])
 	})
 }
-
-const longText = `1. I learned from my grandfather, Verus, to use good manners, and to
-put restraint on anger. 2. In the famous memory of my father I had a
-pattern of modesty and manliness. 3. Of my mother I learned to be
-pious and generous; to keep myself not only from evil deeds, but even
-from evil thoughts; and to live with a simplicity which is far from
-customary among the rich. 4. I owe it to my great-grandfather that I
-did not attend public lectures and discussions, but had good and able
-teachers at home; and I owe him also the knowledge that for things of
-this nature a man should count no expense too great.`
