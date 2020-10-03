@@ -84,15 +84,7 @@ func loop(w *app.Window) error {
 				if *disable {
 					gtx = gtx.Disabled()
 				}
-				if checkbox.Changed() {
-					if checkbox.Value {
-						transformTime = e.Now
-					} else {
-						transformTime = time.Time{}
-					}
-				}
-
-				transformedKitchen(gtx, th)
+				kitchen(gtx, th)
 				e.Frame(gtx.Ops)
 			}
 		case p := <-progressIncrementer:
@@ -103,10 +95,6 @@ func loop(w *app.Window) error {
 			w.Invalidate()
 		}
 	}
-}
-
-func transformedKitchen(gtx layout.Context, th *material.Theme) layout.Dimensions {
-	return kitchen(gtx, th)
 }
 
 var (
