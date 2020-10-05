@@ -9,4 +9,4 @@ install: true
 
 script:
   # run all tests
-  - go test ./...
+  - go test ./
