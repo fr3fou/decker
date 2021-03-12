@@ -49,7 +49,7 @@ Console usage
 - [x] CLI
 - [ ] Handle rotated images
 - [ ] Implement pHash here instead of relying on thirdparty library
-- [ ] GUI in [zserge/lorca](https://github.com/zserge/lorca)
+- [ ] GUI in ~~[zserge/lorca](https://github.com/zserge/lorca)~~ https://github.com/AllenDang/giu
   - [ ] Delete dupes / prompt / preview
 
 ## Data structure
