@@ -5,10 +5,10 @@
 ## Building
 
 ```sh
-$ make		# Builds and installs
-$ make build	# Builds app with go
-$ make install	# Installs the already built app (only use after building first)
-$ make uninstall	# Removes app from path
+$ make              # Builds and installs
+$ make build        # Builds app with go
+$ make install      # Installs the already built app (only use after building first)
+$ make uninstall    # Removes app from path
 ```
 ## Usage
 
@@ -24,7 +24,6 @@ Console usage
         threshold amount (default 5)
   -threshold int
         threshold amount (default 5)
-
 ```
 
 ## References
